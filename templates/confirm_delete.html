@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Delete Product | SmartShop Seller{% endblock %}
+{% block content %}
+<div class="container" style="max-width:600px; margin:40px auto; padding:30px; background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+  <h2 style="color:#dc3545;">Delete Product</h2>
+  <p>Are you sure you want to delete <strong>{{ product.name }}</strong>?</p>
+  <form method="post">{% csrf_token %}
+    <button type="submit" class="btn" style="background:#dc3545; color:white; padding:10px 18px; border-radius:6px;">Yes, Delete</button>
+    <a href="{% url 'app:my_products' %}" class="btn" style="background:#6c757d; color:white; padding:10px 18px; border-radius:6px; margin-left:10px;">Cancel</a>
+  </form>
+</div>
+{% endblock %}

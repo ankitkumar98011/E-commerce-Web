@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Become a Seller | SmartShop{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 600px; margin: 40px auto; padding: 20px;">
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 8px; color: white; text-align: center; margin-bottom: 30px;">
+        <h1 style="margin: 0 0 10px 0; font-size: 2.5rem;">🏪 Start Selling Today</h1>
+        <p style="margin: 0; font-size: 1.1rem; color: rgba(255,255,255,0.9);">Join thousands of sellers and grow your business with SmartShop</p>
+    </div>
+
+    <form method="POST" style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        {% csrf_token %}
+
+        <div style="margin-bottom: 25px;">
+            <label for="shop_name" style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                📦 Shop Name
+            </label>
+            <input type="text" id="shop_name" name="shop_name" required placeholder="Enter your shop name" 
+                   style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1rem; 
+                          transition: border-color 0.3s;"
+                   onfocus="this.style.borderColor='#667eea'"
+                   onblur="this.style.borderColor='#ddd'">
+            <small style="color: #666; display: block; margin-top: 5px;">Your shop name will be displayed to customers</small>
+        </div>
+
+        <div style="margin-bottom: 25px;">
+            <label for="shop_description" style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+                ✍️ Shop Description
+            </label>
+            <textarea id="shop_description" name="shop_description" placeholder="Describe your shop, what you sell, and why customers should buy from you..."
+                     style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 1rem;
+                            min-height: 120px; resize: vertical; transition: border-color 0.3s;"
+                     onfocus="this.style.borderColor='#667eea'"
+                     onblur="this.style.borderColor='#ddd'"></textarea>
+            <small style="color: #666; display: block; margin-top: 5px;">Help customers know more about your business</small>
+        </div>
+
+        <!-- Benefits Section -->
+        <div style="background: #f0f7ff; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #667eea;">
+            <h3 style="margin-top: 0; color: #667eea;">✨ Seller Benefits</h3>
+            <ul style="margin: 10px 0; padding-left: 20px;">
+                <li style="margin-bottom: 8px;">💳 Earn commission on every sale</li>
+                <li style="margin-bottom: 8px;">📊 Access to sales analytics and dashboard</li>
+                <li style="margin-bottom: 8px;">🚀 Wide customer base on SmartShop</li>
+                <li style="margin-bottom: 8px;">⭐ Build your seller ratings and reviews</li>
+                <li style="margin-bottom: 8px;">🔒 Secure payment processing</li>
+                <li style="margin-bottom: 8px;">📱 Mobile app for seller management</li>
+            </ul>
+        </div>
+
+        <!-- Terms Checkbox -->
+        <div style="margin-bottom: 25px; padding: 15px; background: #fef5e7; border-radius: 5px; border: 1px solid #f9e79f;">
+            <label style="display: flex; align-items: flex-start; cursor: pointer;">
+                <input type="checkbox" required style="margin-right: 10px; margin-top: 3px; cursor: pointer;">
+                <span style="color: #333; font-size: 0.95rem;">
+                    I agree to the <a href="#" style="color: #667eea; text-decoration: none;">Seller Terms & Conditions</a> 
+                    and understand the policies for selling on SmartShop.
+                </span>
+            </label>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                      color: white; border: none; border-radius: 5px; font-size: 1.1rem; font-weight: bold;
+                                      cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;"
+                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(102, 126, 234, 0.4)';"
+                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+            🚀 Create My Seller Account
+        </button>
+    </form>
+
+    <!-- Already Seller? -->
+    <div style="text-align: center; margin-top: 20px;">
+        <p style="color: #666;">Already have a seller account? 
+            <a href="{% url 'app:seller_dashboard' %}" style="color: #667eea; text-decoration: none; font-weight: bold;">
+                Go to Dashboard →
+            </a>
+        </p>
+    </div>
+
+    <!-- FAQ Section -->
+    <div style="background: white; padding: 30px; border-radius: 8px; margin-top: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <h3 style="color: #333; margin-top: 0;">❓ Frequently Asked Questions</h3>
+        
+        <div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+            <h4 style="color: #667eea; margin: 0 0 8px 0;">What's the commission fee?</h4>
+            <p style="margin: 0; color: #666;">We charge a competitive commission of 10-15% depending on your category, with no hidden fees.</p>
+        </div>
+
+        <div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+            <h4 style="color: #667eea; margin: 0 0 8px 0;">How do I get paid?</h4>
+            <p style="margin: 0; color: #666;">Payments are processed weekly through your bank account or UPI wallet. Fast and secure!</p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <h4 style="color: #667eea; margin: 0 0 8px 0;">Are there any approval requirements?</h4>
+            <p style="margin: 0; color: #666;">Your first product will be reviewed by our team for quality assurance. Most products are approved within 24 hours.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 600px;
+    }
+
+    input[type="text"],
+    textarea {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    @media (max-width: 600px) {
+        .container {
+            padding: 10px;
+        }
+        
+        h1 {
+            font-size: 1.8rem !important;
+        }
+    }
+</style>
+{% endblock %}

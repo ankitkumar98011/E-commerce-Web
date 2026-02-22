@@ -1,0 +1,157 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}SmartShop{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">SmartShop</div>
+    <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/products">Products</a></li>
+        {% if user.is_authenticated %}
+        <li style="position:relative;">
+            <a href="#" id="notif-bell" style="color:#3498db; font-size:1rem; position:relative; text-decoration:none;">
+                🔔
+                {% if unread_notifications_count > 0 %}
+                    <span style="position:absolute; top:-6px; right:-10px; background:#e74c3c; color:white; border-radius:50%; font-size:0.7rem; padding:2px 6px; font-weight:bold;">{{ unread_notifications_count }}</span>
+                {% endif %}
+            </a>
+            <div id="notif-dropdown" style="display:none; position:absolute; top:120%; right:0; background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 5px 20px rgba(0,0,0,0.15); min-width:320px; z-index:1000; max-height:350px; overflow-y:auto;">
+                <div style="padding:12px 15px; border-bottom:1px solid #f0f0f0; font-weight:bold; color:#3498db; display:flex; justify-content:space-between; align-items:center;">
+                  Notifications
+                  <a href="{% url 'app:notifications' %}" style="color:#3498db; font-size:0.8rem; text-decoration:none; font-weight:normal;">View All →</a>
+                </div>
+                {% for notif in user.notifications.all|slice:':5' %}
+                    <div style="padding:10px 15px; border-bottom:1px solid #f0f0f0; background:{% if not notif.is_read %}#f0f7ff{% else %}white{% endif %};">
+                        <span style="font-weight:600; color:#222;">{{ notif.message|truncatewords:10 }}</span><br>
+                        <span style="font-size:0.85em; color:#888;">{{ notif.created_at|date:'d M Y, H:i' }}</span>
+                    </div>
+                {% empty %}
+                    <div style="padding:20px; color:#888; text-align:center;">No notifications yet.</div>
+                {% endfor %}
+            </div>
+        </li>
+        {% endif %}
+        {% if user.is_authenticated %}
+            <li><a href="{% url 'app:view_cart' %}" style="color: #2ecc71; font-weight: bold;">🛒 Cart</a></li>
+            <li style="position: relative; display: flex; align-items: center;">
+                <button id="user-menu-btn" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 8px 15px; border-radius: 5px; transition: all 0.3s;"
+                        onmouseover="this.style.background='#f0f7ff'; this.style.color='#667eea'"
+                        onmouseout="this.style.background='none'; this.style.color='inherit'">
+                    {% if user.profile.avatar and user.profile.avatar.url %}
+                        <img src="{{ user.profile.avatar.url }}" alt="Profile" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: #667eea; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                            {{ user.first_name|first|upper }}
+                        </div>
+                    {% endif %}
+                    <span>{{ user.first_name }}</span>
+                    <span style="font-size: 0.8rem;">▼</span>
+                </button>
+                
+                <div id="user-dropdown" style="position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); min-width: 220px; display: none; z-index: 1000;"
+                     onmouseover="this.style.display='block'"
+                     onmouseout="this.style.display='none'">
+                    
+                    <a href="{% url 'app:profile' %}" style="display: block; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; text-decoration: none; color: #333; transition: all 0.3s;"
+                       onmouseover="this.style.background='#f9f9f9'; this.style.paddingLeft='20px'"
+                       onmouseout="this.style.background='none'; this.style.paddingLeft='15px'">
+                        👤 My Profile
+                    </a>
+                    
+                    <a href="{% url 'app:my_orders' %}" style="display: block; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; text-decoration: none; color: #333; transition: all 0.3s;"
+                       onmouseover="this.style.background='#f9f9f9'; this.style.paddingLeft='20px'"
+                       onmouseout="this.style.background='none'; this.style.paddingLeft='15px'">
+                        📦 My Orders
+                    </a>
+                    
+                    {% if user.seller_profile %}
+                        <a href="{% url 'app:seller_dashboard' %}" style="display: block; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; text-decoration: none; color: #667eea; font-weight: 600; transition: all 0.3s;"
+                           onmouseover="this.style.background='#f0f7ff'; this.style.paddingLeft='20px'"
+                           onmouseout="this.style.background='none'; this.style.paddingLeft='15px'">
+                            🏪 My Shop
+                        </a>
+                    {% else %}
+                        <a href="{% url 'app:become_seller' %}" style="display: block; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; text-decoration: none; color: #667eea; font-weight: 600; transition: all 0.3s;"
+                           onmouseover="this.style.background='#f0f7ff'; this.style.paddingLeft='20px'"
+                           onmouseout="this.style.background='none'; this.style.paddingLeft='15px'">
+                            🏪 Become Seller
+                        </a>
+                    {% endif %}
+                    
+                    <a href="{% url 'app:settings' %}" style="display: block; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; text-decoration: none; color: #333; transition: all 0.3s;"
+                       onmouseover="this.style.background='#f9f9f9'; this.style.paddingLeft='20px'"
+                       onmouseout="this.style.background='none'; this.style.paddingLeft='15px'">
+                        ⚙️ Settings
+                    </a>
+                    
+                    <a href="{% url 'app:help_center' %}" style="display: block; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; text-decoration: none; color: #f39c12; font-weight: 600; transition: all 0.3s;"
+                       onmouseover="this.style.background='#fff8f0'; this.style.paddingLeft='20px'"
+                       onmouseout="this.style.background='none'; this.style.paddingLeft='15px'">
+                        ❓ Help Center
+                    </a>
+                    
+                    <a href="{% url 'app:logout' %}" style="display: block; padding: 12px 15px; text-decoration: none; color: #dc3545; font-weight: 600; border-radius: 0 0 8px 8px; transition: all 0.3s;"
+                       onmouseover="this.style.background='#ffe5e5'; this.style.paddingLeft='20px'"
+                       onmouseout="this.style.background='none'; this.style.paddingLeft='15px'">
+                        🚪 Logout
+                    </a>
+                </div>
+            </li>
+        {% else %}
+            <li><a href="/login">Login</a></li>
+            <li><a href="/signup" class="btn-outline">Sign Up</a></li>
+        {% endif %}
+    </ul>
+</nav>
+
+<script>
+const userMenuBtn = document.getElementById('user-menu-btn');
+const userDropdown = document.getElementById('user-dropdown');
+
+if (userMenuBtn) {
+    userMenuBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userDropdown.style.display = userDropdown.style.display === 'block' ? 'none' : 'block';
+    });
+    
+    userMenuBtn.addEventListener('mouseover', function() {
+        userDropdown.style.display = 'block';
+    });
+}
+
+document.addEventListener('click', function() {
+    if (userDropdown) {
+        userDropdown.style.display = 'none';
+    }
+});
+</script>
+
+<main class="container">
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                    <button class="close-msg" onclick="this.parentElement.style.display='none';">&times;</button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+    © 2026 SmartShop | Python & ML Powered
+    Contact - 980111980111, 9825598466
+</footer>
+
+</body>
+</html>

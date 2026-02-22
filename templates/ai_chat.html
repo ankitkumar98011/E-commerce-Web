@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}AI Chat Support | SmartShop{% endblock %}
+{% block content %}
+<div class="container" style="max-width:1000px; margin:40px auto; padding:20px;">
+  <h2 style="margin-bottom:30px;">💬 AI Chat Support</h2>
+  
+  <div style="display:grid; grid-template-columns:250px 1fr; gap:20px;">
+    
+    <!-- Sidebar: Product Selection -->
+    <div style="background:white; border-radius:8px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.1); height:fit-content;">
+      <h3 style="margin-top:0; font-size:1rem; color:#333;">Related Products</h3>
+      <ul style="list-style:none; padding:0; margin:0;">
+        {% if user_products %}
+          <li style="margin-bottom:10px;">
+            <strong style="color:#667eea;">Your Products:</strong>
+          </li>
+          {% for product in user_products|slice:':5' %}
+            <li style="margin-bottom:8px;">
+              <a href="?product_id={{ product.id }}" style="color:#3498db; text-decoration:none; font-size:0.9rem; display:block; padding:8px; border-radius:4px; {% if current_product.id == product.id %}background:#f0f7ff; font-weight:bold;{% endif %}">
+                📦 {{ product.name|truncatewords:3 }}
+              </a>
+            </li>
+          {% endfor %}
+        {% endif %}
+        <li style="margin:15px 0 10px 0;">
+          <strong style="color:#667eea;">Your Orders:</strong>
+        </li>
+        {% if user_orders %}
+          {% for order in user_orders|slice:':3' %}
+            <li style="margin-bottom:8px;">
+              <span style="color:#999; font-size:0.85rem;">
+                Order #{{ order.order_number }}<br>
+                <small>₹{{ order.total_amount }}</small>
+              </span>
+            </li>
+          {% endfor %}
+        {% else %}
+          <li style="color:#999; font-size:0.9rem;">No orders yet</li>
+        {% endif %}
+      </ul>
+    </div>
+    
+    <!-- Chat Area -->
+    <div style="background:white; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); display:flex; flex-direction:column; height:600px;">
+      
+      <!-- Chat History -->
+      <div style="flex:1; overflow-y:auto; padding:20px; border-bottom:1px solid #eee;">
+        {% if chat_history %}
+          {% for msg in chat_history %}
+            <div style="margin-bottom:15px; text-align:{% if msg.is_user %}right{% else %}left{% endif %};">
+              <div style="display:inline-block; max-width:70%; padding:12px 15px; border-radius:10px; background:{% if msg.is_user %}#3498db{% else %}#f0f0f0{% endif %}; color:{% if msg.is_user %}white{% else %}#333{% endif %};">
+                {{ msg.message|linebreaksbr }}
+              </div>
+              <small style="display:block; margin-top:5px; color:#888;">
+                {{ msg.created_at|date:'H:i' }}
+              </small>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div style="text-align:center; color:#999; padding:40px 20px;">
+            <p style="font-size:2rem; margin-bottom:10px;">👋</p>
+            <p>Hi! I'm your AI support assistant. Ask me anything about our products, orders, returns, or payments!</p>
+            {% if current_product %}
+              <p style="margin-top:20px; color:#3498db;"><strong>Currently helping with: {{ current_product.name }}</strong></p>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+      
+      <!-- Chat Input -->
+      <div style="padding:20px; border-top:1px solid #eee;">
+        <form method="post">{% csrf_token %}
+          <div style="display:flex; gap:10px;">
+            <input type="hidden" name="product_id" value="{{ current_product.id|default:'' }}">
+            <input type="text" name="message" placeholder="Type your question here..." 
+                   style="flex:1; padding:10px 15px; border:1px solid #ddd; border-radius:5px; font-size:0.95rem;" 
+                   required autofocus>
+            <button type="submit" style="padding:10px 20px; background:#3498db; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">
+              Send 📤
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Quick Help Tips -->
+  <div style="margin-top:30px; padding:20px; background:#f0f8ff; border-radius:8px; border-left:4px solid #3498db;">
+    <h3 style="margin-top:0; color:#3498db;">💡 Quick Tips</h3>
+    <p style="margin:0; color:#555;">
+      Ask me about: Product details • Pricing • Delivery • Returns • Warranty • Payments • Order Status • And more!
+    </p>
+  </div>
+</div>
+
+<style>
+  @media (max-width:768px) {
+    .container {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+  }
+</style>
+{% endblock %}

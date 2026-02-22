@@ -1,0 +1,186 @@
+﻿{% extends "base.html" %}
+{% block title %}Checkout | SmartShop{% endblock %}
+
+{% block content %}
+<div style="background: #f5f5f5; min-height: 100vh; padding: 20px 0;">
+    <div class="checkout-container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <!-- Progress Steps -->
+        <div style="background: white; padding: 20px; border-radius: 4px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <div style="display: flex; justify-content: space-between; max-width: 400px;">
+                <div style="text-align: center;">
+                    <div style="background: #2ecc71; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: bold;">✓</div>
+                    <small style="color: #999;">Cart</small>
+                </div>
+                <div style="flex: 1; margin: 15px 10px 0; border-top: 2px solid #2ecc71;"></div>
+                <div style="text-align: center;">
+                    <div style="background: #2ecc71; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: bold;">2</div>
+                    <small style="color: #333; font-weight: bold;">Checkout</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Checkout Area -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+            <!-- Left Side: Order Details -->
+            <div>
+                <!-- Products Section -->
+                <div style="background: white; padding: 25px; border-radius: 4px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <h3 style="margin-top: 0; color: #333; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px;">📦 Order Items</h3>
+                    {% if cart.items.all %}
+                        {% for item in cart.items.all %}
+                            <div style="display: flex; gap: 15px; padding: 15px 0; border-bottom: 1px solid #f0f0f0;">
+                                <div style="width: 100px; height: 100px; background: #f5f5f5; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    {% if item.product.image %}
+                                        <img src="{{ item.product.image.url }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                                    {% else %}
+                                        <span style="color: #ccc;">No Image</span>
+                                    {% endif %}
+                                </div>
+                                <div style="flex: 1;">
+                                    <p style="margin: 0 0 5px 0; font-weight: 600; font-size: 1.1rem;">{{ item.product.name }}</p>
+                                    <p style="margin: 0 0 5px 0; color: #666; font-size: 0.9rem;">Category: <strong>{{ item.product.category|title }}</strong></p>
+                                    <p style="margin: 0 0 5px 0; color: #666; font-size: 0.9rem;">Quality: <strong>{{ item.product.quality|title }}</strong></p>
+                                    <p style="margin: 0; color: #999; font-size: 0.85rem;">Seller: {{ item.product.seller.seller_profile.shop_name|default:"SmartShop" }}</p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <p style="margin: 0 0 10px 0; font-weight: 600; font-size: 1.2rem; color: #2ecc71;">₹{{ item.product.price }}</p>
+                                    <p style="margin: 0; padding: 8px 12px; background: #f5f5f5; border-radius: 4px; font-weight: 600;">Qty: {{ item.quantity }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: #999; text-align: center; padding: 40px 20px;">Cart is empty</p>
+                    {% endif %}
+                </div>
+
+                <!-- Delivery Address & Payment -->
+                <div style="background: white; padding: 25px; border-radius: 4px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <h3 style="margin-top: 0; color: #333; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px;">📍 Delivery Address & Payment</h3>
+                    
+                    <form method="POST" id="checkout-form">
+                        {% csrf_token %}
+                        
+                        <!-- Name Field -->
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Full Name *</label>
+                            <input type="text" name="full_name" placeholder="Enter your full name" required value="{{ user.first_name }} {{ user.last_name }}" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; box-sizing: border-box;" onfocus="this.style.borderColor='#2ecc71'" onblur="this.style.borderColor='#ddd'">
+                        </div>
+
+                        <!-- Address Field -->
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Shipping Address *</label>
+                            <textarea name="shipping_address" placeholder="House No., Building, Street, Area, Colony..." required rows="4" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; box-sizing: border-box; resize: vertical;" onfocus="this.style.borderColor='#2ecc71'" onblur="this.style.borderColor='#ddd'"></textarea>
+                            <small style="color: #999; display: block; margin-top: 5px;">Include house number, building name, street, and area details</small>
+                        </div>
+
+                        <!-- City & Pincode -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                            <div>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">City *</label>
+                                <input type="text" name="city" placeholder="Enter city" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; box-sizing: border-box;" onfocus="this.style.borderColor='#2ecc71'" onblur="this.style.borderColor='#ddd'">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Pincode *</label>
+                                <input type="text" name="pincode" placeholder="Enter 6-digit pincode" required pattern="[0-9]{6}" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; box-sizing: border-box;" onfocus="this.style.borderColor='#2ecc71'" onblur="this.style.borderColor='#ddd'">
+                            </div>
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Phone Number *</label>
+                            <input type="tel" name="phone_number" placeholder="Enter 10-digit phone number" required pattern="[0-9]{10}" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; box-sizing: border-box;" onfocus="this.style.borderColor='#2ecc71'" onblur="this.style.borderColor='#ddd'">
+                        </div>
+
+                        <!-- Payment Method - INSIDE FORM -->
+                        <div style="margin-bottom: 20px;">
+                            <h3 style="margin-top: 0; margin-bottom: 15px; color: #333; font-size: 1.2rem;">💳 Payment Method</h3>
+                            <div style="display: flex; flex-direction: column; gap: 15px;">
+                                <!-- COD -->
+                                <label style="display: flex; align-items: center; padding: 15px; border: 2px solid #2ecc71; border-radius: 4px; cursor: pointer; background: #f0fff4;">
+                                    <input type="radio" name="payment_method" value="cod" checked required style="width: 20px; height: 20px; margin-right: 15px; cursor: pointer;">
+                                    <div style="flex: 1;">
+                                        <strong style="display: block; margin-bottom: 5px; font-size: 1.1rem;">Cash on Delivery (COD)</strong>
+                                        <small style="color: #666;">Pay securely on delivery of your order</small>
+                                    </div>
+                                    <span style="font-size: 2rem;">📦</span>
+                                </label>
+                                <!-- UPI -->
+                                <label style="display: flex; align-items: center; padding: 15px; border: 2px solid #ddd; border-radius: 4px; cursor: pointer; background: #f9f9f9;">
+                                    <input type="radio" name="payment_method" value="upi" style="width: 20px; height: 20px; margin-right: 15px; cursor: pointer;">
+                                    <div style="flex: 1;">
+                                        <strong style="display: block; margin-bottom: 5px; font-size: 1.1rem;">UPI</strong>
+                                        <small style="color: #666;">Google Pay, PhonePe, Paytm, etc.</small>
+                                    </div>
+                                    <span style="font-size: 2rem;">📱</span>
+                                </label>
+                                <!-- Card -->
+                                <label style="display: flex; align-items: center; padding: 15px; border: 2px solid #ddd; border-radius: 4px; cursor: pointer; background: #f9f9f9;">
+                                    <input type="radio" name="payment_method" value="card" style="width: 20px; height: 20px; margin-right: 15px; cursor: pointer;">
+                                    <div style="flex: 1;">
+                                        <strong style="display: block; margin-bottom: 5px; font-size: 1.1rem;">Debit/Credit Card</strong>
+                                        <small style="color: #666;">Visa, Mastercard, American Express</small>
+                                    </div>
+                                    <span style="font-size: 2rem;">💳</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" style="width: 100%; padding: 16px; background: #2ecc71; color: white; border: none; border-radius: 4px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='#27ae60'; this.style.transform='scale(1.02)'" onmouseout="this.style.background='#2ecc71'; this.style.transform='scale(1)'">
+                            ✓ Place Order
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Back to Cart -->
+                <a href="{% url 'app:view_cart' %}" style="display: block; padding: 16px; background: #e9ecef; color: #333; text-decoration: none; border-radius: 4px; font-size: 1.1rem; font-weight: bold; text-align: center; margin-bottom: 20px;">
+                    ← Back to Cart
+                </a>
+            </div>
+
+            <!-- Right Side: Price Summary -->
+            <div>
+                <div style="background: white; padding: 25px; border-radius: 4px; position: sticky; top: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <h3 style="margin-top: 0; color: #333; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px;">💰 Price Details</h3>
+                    <div style="margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
+                            <span style="color: #666;">Price</span>
+                            <span style="font-weight: 600;">₹{{ total }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
+                            <span style="color: #666;">Delivery</span>
+                            <span style="color: #27ae60; font-weight: 600;">FREE</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 10px 0;">
+                            <span style="color: #666;">Tax</span>
+                            <span>₹0</span>
+                        </div>
+                    </div>
+                    <div style="background: #f0f0f0; padding: 15px; border-radius: 4px; display: flex; justify-content: space-between; margin-bottom: 20px;">
+                        <strong>Total Amount</strong>
+                        <strong style="font-size: 1.4rem; color: #2ecc71;">₹{{ total }}</strong>
+                    </div>
+                    <div style="background: #f0fff4; padding: 12px; border-radius: 4px; text-align: center; color: #27ae60; margin-bottom: 20px;">
+                        🔒 100% Secure Checkout
+                    </div>
+                    <div style="background: #f0f7ff; padding: 15px; border-radius: 4px; font-size: 0.9rem;">
+                        <strong style="color: #007bff;">ℹ️ Order Info</strong>
+                        <ul style="margin: 10px 0 0 0; padding-left: 20px; color: #666;">
+                            <li>Delivery in 2-5 days</li>
+                            <li>Easy returns</li>
+                            <li>24/7 Support</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .checkout-container { animation: slideIn 0.3s ease-out; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    input:valid, textarea:valid { border-color: #ddd !important; }
+    input:invalid:not(:placeholder-shown) { border-color: #dc3545 !important; }
+    @media (max-width: 768px) { [style*="grid-template-columns: 2fr 1fr"] { display: flex !important; flex-direction: column !important; } }
+</style>
+{% endblock %}
